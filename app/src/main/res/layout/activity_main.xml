@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_image"
+    android:gravity="center">
+
+    <!-- Welcome Text -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to Button Blust!"
+        android:textSize="32sp"
+        android:textColor="#007ACC"
+        android:layout_marginBottom="200dp"
+        android:gravity="center"/>
+
+
+    <!-- Log In Button -->
+    <Button
+        android:id="@+id/logInButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Log In"
+        android:textSize="20sp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="#007ACC"
+        android:textColor="#FFFFFF"/>
+
+    <!-- Sign Up Button -->
+    <Button
+        android:id="@+id/signUpButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign Up"
+        android:textSize="20sp"
+        android:layout_marginBottom="50dp"
+        android:backgroundTint="#007ACC"
+        android:textColor="#FFFFFF"/>
+
+    <!-- Start Game Button -->
+    <Button
+        android:id="@+id/startGameButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Game"
+        android:textSize="20sp"
+        android:backgroundTint="#007ACC"
+        android:textColor="#FFFFFF"/>
+</LinearLayout>

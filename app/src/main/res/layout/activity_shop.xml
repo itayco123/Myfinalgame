@@ -1,0 +1,42 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Total coins -->
+    <TextView
+        android:id="@+id/coinsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Coins: 0"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Extra Time Button -->
+    <Button
+        android:id="@+id/buyExtraTimeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Extra Time (+5 Seconds) - 100 coins"
+        android:layout_gravity="center_horizontal" />
+
+    <!-- Double Points Button -->
+    <Button
+        android:id="@+id/buyDoublePointsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Double Points Mode - 150 coins"
+        android:layout_gravity="center_horizontal" />
+    <Button
+        android:id="@+id/backToGameButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back to Game"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+
+</LinearLayout>

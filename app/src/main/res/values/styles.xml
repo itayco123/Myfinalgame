@@ -1,0 +1,13 @@
+<resources>
+    <style name="GameTextStyle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="ButtonStyle">
+        <item name="android:background">#FF6347</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:padding">12dp</item>
+
+    </style>
+</resources>
