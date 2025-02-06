@@ -32,6 +32,12 @@ public class MainActivity extends AppCompatActivity {
         logInButton = findViewById(R.id.logInButton);
         signUpButton = findViewById(R.id.signUpButton);
         logoutButton = findViewById(R.id.logoutButton);
+        Button leaderboardButton = findViewById(R.id.leaderboardButton);
+        leaderboardButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
+            startActivity(intent);
+        });
+
 
         // If a user is logged in, show their email and hide login/signup buttons
         if (currentUser != null) {

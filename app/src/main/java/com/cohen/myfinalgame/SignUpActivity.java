@@ -15,11 +15,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseUser;
+
 
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private EditText emailEditText, passwordEditText, confirmPasswordEditText;
+    private EditText emailEditText, passwordEditText, confirmPasswordEditText, editTextUsername;
     private Button signUpButton;
     private FirebaseAuth mAuth;
 
@@ -36,6 +40,7 @@ public class SignUpActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.signUpPasswordEditText);
         confirmPasswordEditText = findViewById(R.id.signUpConfirmPasswordEditText);
         signUpButton = findViewById(R.id.signUpButton);
+        editTextUsername = findViewById(R.id.editTextUsername);
 
         // Set up sign up button action
         signUpButton.setOnClickListener(new View.OnClickListener(){
@@ -80,6 +85,15 @@ public class SignUpActivity extends AppCompatActivity {
                             String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
                             Toast.makeText(SignUpActivity.this, "Registration Failed: " + errorMessage, Toast.LENGTH_LONG).show();
                         }
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        if (user != null) {
+                            String userId = user.getUid();
+                            String username = editTextUsername.getText().toString().trim(); // Get username from input field
+
+                            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+                            userRef.child("username").setValue(username);
+                        }
+
                     }
                 });
 

@@ -6,6 +6,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Button;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import java.util.HashMap;
 
 public class GameOverActivity extends Activity {
 
@@ -36,9 +41,13 @@ public class GameOverActivity extends Activity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putInt("highScore", highScore);
             editor.apply();
+
+            // Save new high score to Firebase
+            saveHighScore(highScore);
         }
 
         // Convert score to coins (1 point = 1 coin)
+        totalCoins += score; // Add current score to total coins
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt("coins", totalCoins);
         editor.apply();
@@ -65,5 +74,30 @@ public class GameOverActivity extends Activity {
             Intent intent = new Intent(GameOverActivity.this, ShopActivity.class);
             startActivity(intent);
         });
+        // Back to Main Menu Button
+        Button backToMainButton = findViewById(R.id.backToMainButton);
+        backToMainButton.setOnClickListener(v -> {
+            Intent intent = new Intent(GameOverActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish(); // Close GameOverActivity to prevent going back with the back button
+        });
+
+
+    }
+
+
+    // Save high score to Firebase
+    private void saveHighScore(int score) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference scoresRef = database.getReference("leaderboard");
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userId = (user != null) ? user.getUid() : "guest_" + System.currentTimeMillis();
+
+        HashMap<String, Object> scoreData = new HashMap<>();
+        scoreData.put("username", userId); // Later, we can replace this with actual usernames
+        scoreData.put("score", score);
+
+        scoresRef.push().setValue(scoreData);
     }
 }

@@ -17,6 +17,7 @@
             android:exported="false" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".SignUpActivity" />
+        <activity android:name=".LeaderboardActivity" />
         <activity
             android:name=".GameOverActivity"
             android:exported="false" />
