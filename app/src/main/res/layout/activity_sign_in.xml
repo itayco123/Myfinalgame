@@ -27,12 +27,12 @@
         android:layout_marginBottom="32dp"
         android:inputType="textPassword"/>
 
-    <!-- Log In Button -->
+    <!-- Sign Up Button -->
     <Button
-        android:id="@+id/loginButton"
+        android:id="@+id/signUpButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log In"
+        android:text="Sign Up"
         android:textSize="20sp"
         android:padding="16dp"
         android:backgroundTint="#007ACC"

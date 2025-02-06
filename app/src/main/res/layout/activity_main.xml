@@ -8,12 +8,13 @@
 
     <!-- Welcome Text -->
     <TextView
-        android:id="@+id/welcomeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome!"
-        android:textSize="24sp"
-        android:layout_marginBottom="16dp" />
+        android:text="Welcome to Button Blust!"
+        android:textSize="32sp"
+        android:textColor="#007ACC"
+        android:layout_marginBottom="200dp"
+        android:gravity="center"/>
 
 
     <!-- Log In Button -->
@@ -37,16 +38,6 @@
         android:layout_marginBottom="50dp"
         android:backgroundTint="#007ACC"
         android:textColor="#FFFFFF"/>
-    <Button
-        android:id="@+id/logoutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Log Out"
-        android:textSize="20sp"
-        android:layout_marginBottom="50dp"
-        android:backgroundTint="#007ACC"
-        android:textColor="#FFFFFF" />
-
 
     <!-- Start Game Button -->
     <Button
