@@ -4,28 +4,52 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class MainActivity extends AppCompatActivity {
 
-    private Button startGameButton, logInButton, signUpButton;
+    private Button startGameButton, logInButton, signUpButton, logoutButton;
+    private TextView welcomeTextView;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize buttons
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        // Reference UI elements
+        welcomeTextView = findViewById(R.id.welcomeTextView);
         startGameButton = findViewById(R.id.startGameButton);
         logInButton = findViewById(R.id.logInButton);
         signUpButton = findViewById(R.id.signUpButton);
+        logoutButton = findViewById(R.id.logoutButton);
+
+        // If a user is logged in, show their email and hide login/signup buttons
+        if (currentUser != null) {
+            welcomeTextView.setText("Welcome, " + currentUser.getEmail() + "!");
+            logInButton.setVisibility(View.GONE);
+            signUpButton.setVisibility(View.GONE);
+            logoutButton.setVisibility(View.VISIBLE);
+        } else {
+            welcomeTextView.setText("Welcome, Guest!");
+            logInButton.setVisibility(View.VISIBLE);
+            signUpButton.setVisibility(View.VISIBLE);
+            logoutButton.setVisibility(View.GONE);
+        }
 
         // Start game button click
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start GameActivity
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
                 startActivity(intent);
             }
@@ -35,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
         logInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start LogInActivity
-                Intent intent = new Intent(MainActivity.this, LogInActivity.class);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
         });
@@ -45,9 +68,21 @@ public class MainActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start SignInActivity
-                Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+                Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        // Log Out button click
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAuth.signOut();
+                // Refresh MainActivity to update UI
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
             }
         });
     }
