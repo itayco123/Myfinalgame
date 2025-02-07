@@ -6,12 +6,10 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
-import android.widget.GridLayout;
+import androidx.gridlayout.widget.GridLayout;
+import androidx.gridlayout.widget.GridLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
@@ -21,56 +19,52 @@ public class GameActivity extends AppCompatActivity {
     private Button[][] gridButtons = new Button[3][3];
     private int score = 0;
     private CountDownTimer mainTimer, popUpTimer;
-    private long timeLeft = 30000; // 30 seconds
+    private long timeLeft = 30000; // Default 30 seconds
     private Random random = new Random();
 
-    // Add SharedPreferences for coins and item status
+    // Game settings
     SharedPreferences prefs;
     int totalCoins;
-     boolean isDoublePointsActive = false;
+    boolean isDoublePointsActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        // Initialize UI components
+        // Initialize UI elements
         timerText = findViewById(R.id.timerText);
         scoreText = findViewById(R.id.scoreText);
         gridLayout = findViewById(R.id.gridLayout);
 
-        // Load total coins from SharedPreferences
+        // Load game preferences
         prefs = getSharedPreferences("game_prefs", MODE_PRIVATE);
         totalCoins = prefs.getInt("coins", 0);
 
-        // Dynamically add buttons to the grid
-        setupGrid();
-
-        // Load power-ups from SharedPreferences
+        // Load power-ups
         boolean hasDoublePoints = prefs.getBoolean("doublePoints", false);
-        boolean extraTime = prefs.getBoolean("extraTimePurchased", false);
+        boolean hasExtraTime = prefs.getBoolean("extraTimePurchased", false);
+        timeLeft = (hasExtraTime ? 35 : 30) * 1000; // Apply extra time if purchased
 
-        // Set timer to 35 seconds if extra time was bought, otherwise 30 seconds
-        timeLeft = (extraTime ? 35 : 30) * 1000;
-
-        // Reset the power-up after use so it doesn't apply next time automatically
+        // Reset power-ups after using
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("extraTimePurchased", false);
+        editor.putBoolean("doublePoints", false);
         editor.apply();
 
-        // Apply Double Points (if bought)
-        if (hasDoublePoints) {
-            isDoublePointsActive = true;
-            prefs.edit().putBoolean("doublePoints", false).apply(); // Reset after use
-        }
+        // Activate Double Points if purchased
+        isDoublePointsActive = hasDoublePoints;
 
-        // **🔥 Start the game timer AFTER updating timeLeft**
+        // Set up the grid buttons dynamically
+        setupGrid();
+
+        // Start the game timer
         startGame();
     }
 
-
     private void setupGrid() {
-        int buttonSize = getResources().getDisplayMetrics().widthPixels / 4; // Adjust size based on screen width
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int buttonSize = screenWidth / 4; // Bigger buttons (1/4th of screen width)
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -80,12 +74,11 @@ public class GameActivity extends AppCompatActivity {
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.width = buttonSize;
                 params.height = buttonSize;
-                params.setMargins(16, 16, 16, 16); // Margin between buttons
+                params.setMargins(24, 24, 24, 24); // Increase margin for spacing
                 button.setLayoutParams(params);
 
                 // Set default appearance
-                button.setTextSize(20);
-                button.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
+                button.setBackgroundResource(android.R.color.transparent); // Default background
                 button.setTag(new int[]{i, j}); // Store button position
                 button.setOnClickListener(this::handleButtonClick);
 
@@ -95,8 +88,8 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+
     private void startGame() {
-        // Start the main countdown timer
         mainTimer = new CountDownTimer(timeLeft, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -110,22 +103,19 @@ public class GameActivity extends AppCompatActivity {
             }
         }.start();
 
-        // Start the square pop-up timer with a 3-second interval
         startPopUpTimer();
     }
 
     private void startPopUpTimer() {
-
-        
-        popUpTimer = new CountDownTimer(timeLeft, 3000) {
+        popUpTimer = new CountDownTimer(timeLeft, 2000) { // Spawns every 2 seconds
             @Override
             public void onTick(long millisUntilFinished) {
-                popSquare(); // Pops a new square every 3 seconds
+                popSquare();
             }
 
             @Override
             public void onFinish() {
-                // No action needed here since the main timer handles the game end
+                // Main timer will stop the game
             }
         }.start();
     }
@@ -134,7 +124,7 @@ public class GameActivity extends AppCompatActivity {
         // Clear all buttons
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                gridButtons[i][j].setText("");
+                gridButtons[i][j].setBackgroundResource(android.R.color.transparent); // Reset
                 gridButtons[i][j].setEnabled(false);
             }
         }
@@ -142,88 +132,64 @@ public class GameActivity extends AppCompatActivity {
         // Choose a random button to activate
         int i = random.nextInt(3);
         int j = random.nextInt(3);
-
         Button randomButton = gridButtons[i][j];
         randomButton.setEnabled(true);
 
-        // Randomly assign square type
+        // Randomly assign square type with images
         int squareType = random.nextInt(10);
         if (squareType < 7) {
-            randomButton.setText("1"); // Normal square
+            randomButton.setBackgroundResource(R.drawable.point1); // +1 image
         } else if (squareType == 7) {
-            randomButton.setText("+3"); // Add 3 seconds
+            randomButton.setBackgroundResource(R.drawable.time_bonus); // +3 time image
         } else if (squareType == 8) {
-            randomButton.setText("2"); // Two-point square
+            randomButton.setBackgroundResource(R.drawable.point2); // +2 image
         } else {
-            randomButton.setText("💣"); // Bomb square
+            randomButton.setBackgroundResource(R.drawable.bomb); // Bomb image
         }
     }
 
+
     private void handleButtonClick(View view) {
         Button clickedButton = (Button) view;
-        String squareType = clickedButton.getText().toString();
 
-        // Load double points status from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("game_prefs", MODE_PRIVATE);
-        boolean hasDoublePoints = prefs.getBoolean("doublePoints", false);
-
-        if (squareType.equals("💣")) {
+        // Check which image is used and assign points correctly
+        if (clickedButton.getBackground().getConstantState() == getResources().getDrawable(R.drawable.bomb).getConstantState()) {
+            // 💣 Bomb → End Game
             mainTimer.cancel();
             popUpTimer.cancel();
             endGame();
-        } else if (squareType.equals("+3")) {
+        } else if (clickedButton.getBackground().getConstantState() == getResources().getDrawable(R.drawable.time_bonus).getConstantState()) {
+            // ⏳ +3s → Add 3 seconds to time
             timeLeft += 3000;
             mainTimer.cancel();
-            startGame();
-        } else if (squareType.equals("2")) {
-            score += hasDoublePoints ? 4 : 2; // Double points effect
+            startGame(); // Restart timer with added time
+        } else if (clickedButton.getBackground().getConstantState() == getResources().getDrawable(R.drawable.point2).getConstantState()) {
+            // 🟢 +2 Points
+            score += isDoublePointsActive ? 4 : 2;
         } else {
-            score += hasDoublePoints ? 2 : 1; // Double points effect
-        }
-        if (isDoublePointsActive) {
-            score += 1; // Double the points
-
+            // 🔵 +1 Point (Default)
+            score += isDoublePointsActive ? 2 : 1;
         }
 
-        // Reset double points after first game use
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("doublePoints", false);
-        editor.apply();
-
+        // Update Score Display
         scoreText.setText("Score: " + score);
-        popSquare();
 
+        // Reset button and pop a new one
+        popSquare();
     }
 
 
     private void endGame() {
-        // Stop both timers
         if (mainTimer != null) mainTimer.cancel();
         if (popUpTimer != null) popUpTimer.cancel();
 
-        // Add earned coins
-        totalCoins += score; // Reward player with coins equal to their score
-
-        // Save total coins to SharedPreferences
-        // After the game ends, add the score as coins
-        int earnedCoins = score; // For now, we'll use the score as coins
-
-// Get SharedPreferences and update the coins
-        SharedPreferences prefs = getSharedPreferences("game_prefs", MODE_PRIVATE);
-        int currentCoins = prefs.getInt("coins", 0); // Get current coins, default to 0
-        int newCoinBalance = currentCoins + earnedCoins; // Add the earned coins to current balance
-
-// Save the updated coin balance
+        // Save earned coins
+        totalCoins += score;
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt("coins", newCoinBalance);
+        editor.putInt("coins", totalCoins);
         editor.apply();
 
-
-        // Apply fade-out animation before transitioning
-        // Animation fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-        // gridLayout.startAnimation(fadeOut);
-
-        // Start the GameOverActivity with the final score
+        // Navigate to Game Over screen
         Intent intent = new Intent(GameActivity.this, GameOverActivity.class);
         intent.putExtra("score", score);
         startActivity(intent);
