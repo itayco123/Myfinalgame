@@ -1,0 +1,16 @@
+<?xml version ="1.0" encoding ="utf-8"?><!--  Learn More about how to use App Actions: https://developer.android.com/guide/actions/index.html -->
+    <selector xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:state_pressed="true">
+            <shape android:shape="rectangle">
+                <corners android:radius="12dp"/>
+                <solid android:color="@color/secondaryColor"/>
+            </shape>
+        </item>
+        <item>
+            <shape android:shape="rectangle">
+                <corners android:radius="12dp"/>
+                <solid android:color="@color/primaryColor"/>
+            </shape>
+        </item>
+    </selector>
+
