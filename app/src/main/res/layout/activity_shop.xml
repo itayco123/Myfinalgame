@@ -1,77 +1,42 @@
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
-    tools:context=".ShopActivity">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <!-- Coins Display -->
+    <!-- Total coins -->
     <TextView
         android:id="@+id/coinsText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Coins: 0"
-        android:textSize="24sp"
-        android:textColor="@color/primaryTextColor"
-        android:fontFamily="sans-serif-bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        android:text="Total Coins: 0"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Power-Up Buttons -->
-    <Button
-        android:id="@+id/buyDoublePointsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Double Points (150 Coins)"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/coinsText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
+    <!-- Extra Time Button -->
     <Button
         android:id="@+id/buyExtraTimeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Extra Time (100 Coins)"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/buyDoublePointsButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:text="Extra Time (+5 Seconds) - 100 coins"
+        android:layout_gravity="center_horizontal" />
 
-
-
+    <!-- Double Points Button -->
     <Button
-        android:id="@+id/buyExtraLifeButton"
+        android:id="@+id/buyDoublePointsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Extra Life (120 Coins)"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/buyExtraTimeButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <Button
-        android:id="@+id/buyTriplePointsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Triple Points (200 Coins)"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/buyExtraLifeButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Back to Game Button -->
+        android:text="Double Points Mode - 150 coins"
+        android:layout_gravity="center_horizontal" />
     <Button
         android:id="@+id/backToGameButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Back to Game"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/buyTriplePointsButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+
+</LinearLayout>

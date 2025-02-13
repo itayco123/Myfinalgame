@@ -12,10 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyFinalGame"
         tools:targetApi="31">
-        <meta-data
-            android:name="com.google.android.actions"
-            android:resource="@drawable/button_background" />
-
         <activity
             android:name=".ShopActivity"
             android:exported="false" />

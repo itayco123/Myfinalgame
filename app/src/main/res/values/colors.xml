@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="backgroundColor">#121212</color> <!-- Dark background -->
-    <color name="primaryColor">#4CAF50</color> <!-- Green for buttons -->
-    <color name="secondaryColor">#388E3C</color> <!-- Darker green for press effect -->
-    <color name="primaryTextColor">#FFFFFF</color> <!-- White text -->
-    <color name="white">#FFFFFF</color> <!-- Pure white -->
+    <color name="primaryTextColor">#FFFFFF</color>
+    <color name="backgroundColor">#121212</color>
 </resources>

@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -23,7 +20,6 @@ public class LeaderboardActivity extends Activity {
     private ListView leaderboardList;
     private ArrayAdapter<String> leaderboardAdapter;
     private List<String> leaderboardData = new ArrayList<>();
-    private Animation fadeInAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +29,11 @@ public class LeaderboardActivity extends Activity {
         leaderboardList = findViewById(R.id.leaderboardList);
         Button backButton = findViewById(R.id.backButton);
 
-        // Load fade-in animation for smooth leaderboard updates
-        fadeInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-
         // Set up ListView adapter
         leaderboardAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, leaderboardData);
         leaderboardList.setAdapter(leaderboardAdapter);
 
-        // Load leaderboard data from Firebase
+        // Load leaderboard data
         loadLeaderboard();
 
         // Back button to Main Menu
@@ -64,17 +57,13 @@ public class LeaderboardActivity extends Activity {
                     String username = data.child("username").getValue(String.class);
                     Integer score = data.child("score").getValue(Integer.class);
 
-                    if (username == null || username.trim().isEmpty()) {
-                        username = "Guest"; // Default username if missing
-                    }
-
-                    if (score != null) {
+                    if (username != null && score != null) {
                         scoreList.add(new ScoreEntry(username, score));
                     }
                 }
 
                 // Sort from highest to lowest score
-                Collections.sort(scoreList, (a, b) -> Integer.compare(b.score, a.score));
+                Collections.sort(scoreList, (a, b) -> b.score - a.score);
 
                 // Convert to display format
                 int rank = 1;
@@ -83,8 +72,6 @@ public class LeaderboardActivity extends Activity {
                     rank++;
                 }
 
-                // Update UI with animation
-                leaderboardList.startAnimation(fadeInAnimation);
                 leaderboardAdapter.notifyDataSetChanged();
             }
 
