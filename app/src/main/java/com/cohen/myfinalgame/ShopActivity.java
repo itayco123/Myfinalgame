@@ -3,18 +3,17 @@ package com.cohen.myfinalgame;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ShopActivity extends AppCompatActivity {
 
-    private Button backToGameButton, buyDoublePointsButton, buyExtraTimeButton;
+    private Button backToGameButton, buyDoublePointsButton, buyExtraTimeButton, buyExtraLifeButton, buyTriplePointsButton;
     private TextView coinsText;
     private int coins;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,75 +24,43 @@ public class ShopActivity extends AppCompatActivity {
         backToGameButton = findViewById(R.id.backToGameButton);
         buyDoublePointsButton = findViewById(R.id.buyDoublePointsButton);
         buyExtraTimeButton = findViewById(R.id.buyExtraTimeButton);
+        buyExtraLifeButton = findViewById(R.id.buyExtraLifeButton);
+        buyTriplePointsButton = findViewById(R.id.buyTriplePointsButton);
         coinsText = findViewById(R.id.coinsText);
 
-        // Get the current number of coins from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("game_prefs", MODE_PRIVATE);
+        prefs = getSharedPreferences("game_prefs", MODE_PRIVATE);
         coins = prefs.getInt("coins", 0);
-        coinsText.setText("Coins: " + coins);
+        updateCoinsText();
 
         // Back to Game button
-        backToGameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShopActivity.this, GameActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        backToGameButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ShopActivity.this, GameActivity.class);
+            startActivity(intent);
+            finish();
         });
 
-        // Buy Double Points button
-        buyDoublePointsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (coins >= 150) {
-                    coins -= 150;
-                    updateCoins();
+        // Buy power-ups
+        buyDoublePointsButton.setOnClickListener(v -> purchasePowerUp("doublePoints", 150, "Double Points Activated!"));
+        buyExtraTimeButton.setOnClickListener(v -> purchasePowerUp("extraTimePurchased", 100, "Extra Time Purchased!"));
+        buyExtraLifeButton.setOnClickListener(v -> purchasePowerUp("extraLife", 120, "Extra Life Purchased!"));
+        buyTriplePointsButton.setOnClickListener(v -> purchasePowerUp("triplePoints", 200, "Triple Points Activated!"));
+    }
 
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("doublePoints", true);
-                    editor.apply();
+    private void purchasePowerUp(String powerUpKey, int cost, String successMessage) {
+        if (coins >= cost) {
+            coins -= cost;
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("coins", coins);
+            editor.putBoolean(powerUpKey, true);
+            editor.apply();
+            updateCoinsText();
+            Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Not enough coins!", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-                    Toast.makeText(ShopActivity.this, "Double Points Activated!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(ShopActivity.this, "Not enough coins!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        // Buy Extra Time button
-        // Buy Extra Time button click
-        buyExtraTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (coins >= 100) { // Check if the player has enough coins
-                    coins -= 100; // Deduct coins for the purchase
-                    updateCoins(); // Update the displayed coin balance
-
-                    // Save extra time effect in SharedPreferences
-                    SharedPreferences prefs = getSharedPreferences("game_prefs", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("extraTimePurchased", true); // Store that extra time was bought
-                    editor.apply();
-
-                    Toast.makeText(ShopActivity.this, "Extra Time Purchased!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(ShopActivity.this, "Not enough coins!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-
-    } // <-- Make sure this closing brace is here!
-
-    // ✅ This method should be OUTSIDE onCreate()!
-    private void updateCoins() {
-        SharedPreferences prefs = getSharedPreferences("game_prefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt("coins", coins);
-        editor.apply();
-
+    private void updateCoinsText() {
         coinsText.setText("Coins: " + coins);
     }
 }
-
