@@ -1,73 +1,86 @@
 package com.cohen.myfinalgame;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText emailEditText, passwordEditText;
+    private EditText editTextEmail, editTextPassword;
     private Button loginButton;
-    private FirebaseAuth mAuth;
+    private TextView signUpText;
+    private FirebaseAuth auth;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_log_in); // Ensure this layout exists
+        setContentView(R.layout.activity_log_in);
 
-        // Initialize Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Logging in...");
 
-        // Reference views from your layout
-        emailEditText = findViewById(R.id.loginEmailEditText);
-        passwordEditText = findViewById(R.id.loginPasswordEditText);
+        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPassword = findViewById(R.id.editTextPassword);
         loginButton = findViewById(R.id.loginButton);
+        signUpText = findViewById(R.id.signUpText);
 
-        // Set up login button action
-        loginButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                loginUser();
+        loginButton.setOnClickListener(v -> loginUser());
+        signUpText.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
+            finish();
+        });
+
+        // Check if user is already logged in
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            navigateToMain();
+        }
+    }
+
+    private void loginUser() {
+        String email = editTextEmail.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+
+        if (!isValidInput(email, password)) return;
+
+        progressDialog.show();
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            progressDialog.dismiss();
+            if (task.isSuccessful()) {
+                Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+                navigateToMain();
+            } else {
+                Toast.makeText(LoginActivity.this, "Login Failed. Please check your credentials.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void loginUser() {
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
-
-        // Validate input
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(LoginActivity.this, "Please enter email and password", Toast.LENGTH_SHORT).show();
-            return;
+    private boolean isValidInput(String email, String password) {
+        if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editTextEmail.setError("Enter a valid email");
+            return false;
         }
+        if (TextUtils.isEmpty(password) || password.length() < 6) {
+            editTextPassword.setError("Password must be at least 6 characters");
+            return false;
+        }
+        return true;
+    }
 
-        // Attempt sign in using FirebaseAuth
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success
-                            Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                            // TODO: Navigate to your main app screen
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this, "Login Failed: "
-                                    + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+    private void navigateToMain() {
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        finish();
     }
 }

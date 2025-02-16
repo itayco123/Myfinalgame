@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="backgroundColor">#121212</color> <!-- Dark background -->
-    <color name="primaryColor">#4CAF50</color> <!-- Green for buttons -->
-    <color name="secondaryColor">#388E3C</color> <!-- Darker green for press effect -->
-    <color name="primaryTextColor">#FFFFFF</color> <!-- White text -->
-    <color name="white">#FFFFFF</color> <!-- Pure white -->
+    <!-- Primary Colors -->
+    <color name="primaryColor">#4CAF50</color> <!-- Green -->
+    <color name="primaryColorDark">#388E3C</color> <!-- Darker Green -->
+
+    <!-- Backgrounds -->
+    <color name="backgroundColor">#121212</color> <!-- Dark Mode Background -->
+    <color name="secondaryBackgroundColor">#1E1E1E</color> <!-- Slightly lighter for fields -->
+    <color name="secondaryColor">#757575</color> <!-- Grayish secondary color -->
+
+    <!-- Text Colors -->
+    <color name="primaryTextColor">#FFFFFF</color> <!-- White Text -->
+    <color name="secondaryTextColor">#B3B3B3</color> <!-- Light Gray -->
+    <color name="white">#FFFFFF</color> <!-- White -->
+
+    <!-- Button Highlights -->
+    <color name="accentColor">#FF9800</color> <!-- Orange -->
+    <color name="dangerColor">#D32F2F</color> <!-- Red -->
+    <color name="coinColor">#FFD700</color> <!-- Gold -->
+
+    <!-- Transparent Overlays -->
+    <color name="overlayColor">#66000000</color> <!-- Semi-transparent Black -->
 </resources>

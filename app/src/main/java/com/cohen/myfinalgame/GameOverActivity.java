@@ -4,26 +4,36 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.*;
-import java.util.HashMap;
-import android.util.Log;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
 
 public class GameOverActivity extends Activity {
+
+    private TextView finalScoreText, highScoreText, coinsText;
+    private Button playAgainButton, exitButton, shopButton, backToMainButton, leaderboardButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_over);
 
-        // Find UI elements
-        TextView finalScoreText = findViewById(R.id.finalScoreText);
-        TextView highScoreText = findViewById(R.id.highScoreText);
-        TextView coinsText = findViewById(R.id.coinsText);
+        // Initialize UI components
+        finalScoreText = findViewById(R.id.finalScoreText);
+        highScoreText = findViewById(R.id.highScoreText);
+        coinsText = findViewById(R.id.coinsText);
+        playAgainButton = findViewById(R.id.playAgainButton);
+        exitButton = findViewById(R.id.exitButton);
+        shopButton = findViewById(R.id.shopButton);
+        backToMainButton = findViewById(R.id.backToMainButton);
+        leaderboardButton = findViewById(R.id.leaderboardButton); // Ensure this ID exists in your layout
 
         // Get the score from the Intent
         int score = getIntent().getIntExtra("score", 0);
@@ -34,68 +44,74 @@ public class GameOverActivity extends Activity {
         int highScore = prefs.getInt("highScore", 0);
         int totalCoins = prefs.getInt("coins", 0);
 
+        // For testing, we record every score.
+        // (If you prefer to save only new high scores, move this call into the if-block below.)
+        saveHighScore(score);
+
         // Update high score if necessary
         if (score > highScore) {
             highScore = score;
             SharedPreferences.Editor editor = prefs.edit();
             editor.putInt("highScore", highScore);
             editor.apply();
-
-            // Save new high score to Firebase
-            saveHighScore(highScore);
+            Log.d("LeaderboardDebug", "New high score detected: " + highScore);
         }
 
-        // Convert score to coins
+        // Convert score to coins (1 point = 1 coin)
         totalCoins += score;
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt("coins", totalCoins);
         editor.apply();
 
+        // Display updated high score and coins
         highScoreText.setText("High Score: " + highScore);
         coinsText.setText("Total Coins: " + totalCoins);
 
-        // Buttons
-        Button playAgainButton = findViewById(R.id.playAgainButton);
-        Button exitButton = findViewById(R.id.exitButton);
-        Button shopButton = findViewById(R.id.shopButton);
-        Button backToMainButton = findViewById(R.id.backToMainButton);
+        // Button Listeners
 
         playAgainButton.setOnClickListener(v -> {
-            startActivity(new Intent(GameOverActivity.this, GameActivity.class));
+            Intent intent = new Intent(GameOverActivity.this, GameActivity.class);
+            startActivity(intent);
             finish();
         });
 
         exitButton.setOnClickListener(v -> finishAffinity());
 
         shopButton.setOnClickListener(v -> {
-            startActivity(new Intent(GameOverActivity.this, ShopActivity.class));
+            Intent intent = new Intent(GameOverActivity.this, ShopActivity.class);
+            startActivity(intent);
         });
 
-
-
         backToMainButton.setOnClickListener(v -> {
-            startActivity(new Intent(GameOverActivity.this, MainActivity.class));
+            Intent intent = new Intent(GameOverActivity.this, MainActivity.class);
+            startActivity(intent);
             finish();
+        });
+
+        leaderboardButton.setOnClickListener(v -> {
+            Intent intent = new Intent(GameOverActivity.this, LeaderboardActivity.class);
+            startActivity(intent);
         });
     }
 
-    // Save High Score to Firebase
+    // Save score to Firebase under the "leaderboard" node
     private void saveHighScore(int score) {
+        Log.d("LeaderboardDebug", "🔥 saveHighScore() called with score: " + score);
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference scoresRef = database.getReference("leaderboard");
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userId = (user != null) ? user.getUid() : "guest_" + System.currentTimeMillis();
+        // Use displayName if available; otherwise default to "Guest"
+        String username = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "Guest";
 
         HashMap<String, Object> scoreData = new HashMap<>();
-        scoreData.put("username", userId); // You should replace this with an actual username
+        scoreData.put("username", username);
         scoreData.put("score", score);
 
         scoresRef.push().setValue(scoreData)
-                .addOnSuccessListener(aVoid -> Log.d("Firebase", "✅ Score added successfully!"))
-                .addOnFailureListener(e -> Log.e("Firebase", "❌ Failed to add score", e));
+                .addOnSuccessListener(aVoid -> Log.d("LeaderboardDebug", "✅ Score added successfully!"))
+                .addOnFailureListener(e -> Log.e("LeaderboardDebug", "❌ Failed to add score", e));
     }
-
-
-
 }
