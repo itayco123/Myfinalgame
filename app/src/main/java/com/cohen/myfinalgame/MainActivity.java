@@ -38,10 +38,14 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-
-        // If a user is logged in, show their email and hide login/signup buttons
+        // If a user is logged in, extract their username from their email
         if (currentUser != null) {
-            welcomeTextView.setText("Welcome, " + currentUser.getEmail() + "!");
+            String email = currentUser.getEmail();
+            String username = "User";
+            if (email != null && email.contains("@")) {
+                username = email.substring(0, email.indexOf("@"));
+            }
+            welcomeTextView.setText("Welcome, " + username + "!");
             logInButton.setVisibility(View.GONE);
             signUpButton.setVisibility(View.GONE);
             logoutButton.setVisibility(View.VISIBLE);

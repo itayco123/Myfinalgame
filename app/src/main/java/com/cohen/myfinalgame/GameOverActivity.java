@@ -18,7 +18,7 @@ import java.util.HashMap;
 public class GameOverActivity extends Activity {
 
     private TextView finalScoreText, highScoreText, coinsText;
-    private Button playAgainButton, exitButton, shopButton, backToMainButton, leaderboardButton;
+    private Button playAgainButton, exitButton, shopButton, backToMainButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,6 @@ public class GameOverActivity extends Activity {
         exitButton = findViewById(R.id.exitButton);
         shopButton = findViewById(R.id.shopButton);
         backToMainButton = findViewById(R.id.backToMainButton);
-        leaderboardButton = findViewById(R.id.leaderboardButton); // Ensure this ID exists in your layout
 
         // Get the score from the Intent
         int score = getIntent().getIntExtra("score", 0);
@@ -88,10 +87,7 @@ public class GameOverActivity extends Activity {
             finish();
         });
 
-        leaderboardButton.setOnClickListener(v -> {
-            Intent intent = new Intent(GameOverActivity.this, LeaderboardActivity.class);
-            startActivity(intent);
-        });
+
     }
 
     // Save score to Firebase under the "leaderboard" node
@@ -102,9 +98,8 @@ public class GameOverActivity extends Activity {
         DatabaseReference scoresRef = database.getReference("leaderboard");
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userId = (user != null) ? user.getUid() : "guest_" + System.currentTimeMillis();
-        // Use displayName if available; otherwise default to "Guest"
         String username = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "Guest";
+
 
         HashMap<String, Object> scoreData = new HashMap<>();
         scoreData.put("username", username);

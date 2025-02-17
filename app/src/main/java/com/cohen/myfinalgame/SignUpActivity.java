@@ -5,12 +5,16 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.HashMap;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -47,6 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
+            // Create the user with email and password
             auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -54,22 +59,35 @@ public class SignUpActivity extends AppCompatActivity {
                             if (user != null) {
                                 String userId = user.getUid();
 
-                                // Save username in Firebase
-                                HashMap<String, Object> userData = new HashMap<>();
-                                userData.put("username", username);
-                                databaseRef.child(userId).setValue(userData);
-                            }
+                                // Prepare the profile update request with the chosen username
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(username)
+                                        .build();
 
-                            Toast.makeText(SignUpActivity.this, "Sign-Up Successful!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SignUpActivity.this, MainActivity.class));
-                            finish();
+                                // Update the user's profile and wait for the update to complete
+                                user.updateProfile(profileUpdates)
+                                        .addOnCompleteListener(profileTask -> {
+                                            if (profileTask.isSuccessful()) {
+                                                // Optionally, save the username under the "users" node
+                                                HashMap<String, Object> userData = new HashMap<>();
+                                                userData.put("username", username);
+                                                databaseRef.child(userId).setValue(userData);
+
+                                                Toast.makeText(SignUpActivity.this, "Sign-Up Successful!", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(SignUpActivity.this, MainActivity.class));
+                                                finish();
+                                            } else {
+                                                Toast.makeText(SignUpActivity.this, "Profile update failed!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
                         } else {
                             Toast.makeText(SignUpActivity.this, "Sign-Up Failed!", Toast.LENGTH_SHORT).show();
                         }
                     });
         });
 
-        // Back Button
+        // Back Button Click
         backButton.setOnClickListener(v -> {
             startActivity(new Intent(SignUpActivity.this, MainActivity.class));
             finish();
