@@ -18,7 +18,7 @@ import java.util.HashMap;
 public class GameOverActivity extends Activity {
 
     private TextView finalScoreText, highScoreText, coinsText;
-    private Button playAgainButton, exitButton, shopButton, backToMainButton;
+    private Button playAgainButton, shopButton, backToMainButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,6 @@ public class GameOverActivity extends Activity {
         highScoreText = findViewById(R.id.highScoreText);
         coinsText = findViewById(R.id.coinsText);
         playAgainButton = findViewById(R.id.playAgainButton);
-        exitButton = findViewById(R.id.exitButton);
         shopButton = findViewById(R.id.shopButton);
         backToMainButton = findViewById(R.id.backToMainButton);
 
@@ -74,7 +73,6 @@ public class GameOverActivity extends Activity {
             finish();
         });
 
-        exitButton.setOnClickListener(v -> finishAffinity());
 
         shopButton.setOnClickListener(v -> {
             Intent intent = new Intent(GameOverActivity.this, ShopActivity.class);

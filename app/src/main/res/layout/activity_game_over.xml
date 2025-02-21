@@ -34,23 +34,9 @@
         android:textSize="20sp"
         android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal" />
-    <Button
-        android:id="@+id/backToMainButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back to Main Menu"
-        android:textSize="20sp"
-        android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal"/>
 
-    <Button
-        android:id="@+id/leaderboardButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back to Main Menu"
-        android:textSize="20sp"
-        android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal"/>
+
+
 
 
     <!-- Score Display -->
@@ -65,6 +51,17 @@
         android:layout_gravity="center"
         android:layout_marginBottom="16dp" />
 
+    <Button
+        android:id="@+id/backToMainButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back to Main Menu"
+        android:textSize="18sp"
+        android:backgroundTint="#8B0000"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_button"/>
+
 
     <!-- Play Again Button -->
     <Button
@@ -78,16 +75,7 @@
     android:layout_marginBottom="16dp"
     android:background="@drawable/rounded_button"/>
 
-    <!-- Exit Button -->
-    <Button
-        android:id="@+id/exitButton"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="Exit"
-    android:textSize="18sp"
-    android:backgroundTint="#8B0000"
-    android:textColor="#FFFFFF"
-    android:background="@drawable/rounded_button" />
+
     <Button
         android:id="@+id/shopButton"
         android:layout_width="wrap_content"
