@@ -40,10 +40,10 @@ public class ShopActivity extends AppCompatActivity {
         });
 
         // Buy power-ups
-        buyDoublePointsButton.setOnClickListener(v -> purchasePowerUp("doublePoints", 150, "Double Points Activated!"));
+        buyDoublePointsButton.setOnClickListener(v -> purchasePowerUp("doublePoints", 200, "Double Points Activated!"));
         buyExtraTimeButton.setOnClickListener(v -> purchasePowerUp("extraTimePurchased", 100, "Extra Time Purchased!"));
         buyExtraLifeButton.setOnClickListener(v -> purchasePowerUp("extraLife", 120, "Extra Life Purchased!"));
-        buyTriplePointsButton.setOnClickListener(v -> purchasePowerUp("triplePoints", 200, "Triple Points Activated!"));
+        buyTriplePointsButton.setOnClickListener(v -> purchasePowerUp("triplePoints", 150, "Triple Points Activated!"));
     }
 
     private void purchasePowerUp(String powerUpKey, int cost, String successMessage) {
