@@ -34,6 +34,10 @@ import android.os.Looper;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.tasks.Task;
 
 public class GameOverActivity extends Activity {
 
@@ -128,24 +132,88 @@ public class GameOverActivity extends Activity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String username = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "Guest";
 
-        // Use hardcoded coordinates for Kfar Saba, Israel
-        double latitude = 32.1750;
-        double longitude = 34.9069;
-        String city = "Kfar Saba";
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        Log.d(TAG, "Using coordinates for Kfar Saba - Lat: " + latitude + ", Long: " + longitude);
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(500);
+        locationRequest.setNumUpdates(1);
 
-        DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
-        Map<String, Object> scoreEntry = new HashMap<>();
-        scoreEntry.put("username", username);
-        scoreEntry.put("score", score);
-        scoreEntry.put("city", city);
-        scoreEntry.put("latitude", latitude);
-        scoreEntry.put("longitude", longitude);
+        // Check if location settings are enabled
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
 
-        scoresRef.push().setValue(scoreEntry)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score with location added successfully!"))
-                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save score", e));
+        task.addOnSuccessListener(this, locationSettingsResponse -> {
+            // Location settings are satisfied, request location updates
+            LocationCallback locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null || locationResult.getLastLocation() == null) {
+                        Log.w(TAG, "High accuracy location is null");
+                        saveHighScoreWithoutLocation(score);
+                        fusedLocationClient.removeLocationUpdates(this);
+                        return;
+                    }
+
+                    Location location = locationResult.getLastLocation();
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    String city = "Unknown";
+
+                    Log.d(TAG, "Location received - Lat: " + latitude + ", Long: " + longitude);
+
+                    Geocoder geocoder = new Geocoder(GameOverActivity.this, Locale.getDefault());
+                    try {
+                        List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                        if (addresses != null && !addresses.isEmpty()) {
+                            Address address = addresses.get(0);
+                            city = address.getLocality();
+                            if (city == null) {
+                                city = address.getSubAdminArea();
+                            }
+                            if (city == null) {
+                                city = address.getAdminArea();
+                            }
+                            Log.d(TAG, "City obtained: " + city + ", Country: " + address.getCountryName());
+                        } else {
+                            Log.d(TAG, "Geocoder returned no address");
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "Geocoder error", e);
+                    }
+
+                    DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
+                    Map<String, Object> scoreEntry = new HashMap<>();
+                    scoreEntry.put("username", username);
+                    scoreEntry.put("score", score);
+                    scoreEntry.put("city", city);
+                    scoreEntry.put("latitude", latitude);
+                    scoreEntry.put("longitude", longitude);
+
+                    scoresRef.push().setValue(scoreEntry)
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score with location added successfully!"))
+                            .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save score", e));
+
+                    fusedLocationClient.removeLocationUpdates(this);
+                }
+            };
+
+            try {
+                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+            } catch (SecurityException e) {
+                Log.e(TAG, "Location permission error", e);
+                saveHighScoreWithoutLocation(score);
+            }
+        });
+
+        task.addOnFailureListener(this, e -> {
+            Log.e(TAG, "Location settings are not satisfied", e);
+            Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show();
+            saveHighScoreWithoutLocation(score);
+        });
     }
 
     private void saveHighScoreWithoutLocation(int score) {
