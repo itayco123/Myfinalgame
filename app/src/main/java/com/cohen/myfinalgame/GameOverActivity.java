@@ -80,7 +80,7 @@ public class GameOverActivity extends Activity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putInt("highScore", highScore);
             editor.apply();
-            Log.d("LeaderboardDebug", "New high score detected: " + highScore);
+            Log.d(TAG, "New high score detected: " + highScore);
         }
 
         totalCoins += score;
@@ -128,73 +128,24 @@ public class GameOverActivity extends Activity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String username = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "Guest";
 
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        // Use hardcoded coordinates for Kfar Saba, Israel
+        double latitude = 32.1750;
+        double longitude = 34.9069;
+        String city = "Kfar Saba";
 
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(500);
-        locationRequest.setNumUpdates(1); // Only get one update
+        Log.d(TAG, "Using coordinates for Kfar Saba - Lat: " + latitude + ", Long: " + longitude);
 
-        LocationCallback locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null || locationResult.getLastLocation() == null) {
-                    Log.w(TAG, "High accuracy location is null");
-                    saveHighScoreWithoutLocation(score);
-                    fusedLocationClient.removeLocationUpdates(this);
-                    return;
-                }
+        DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
+        Map<String, Object> scoreEntry = new HashMap<>();
+        scoreEntry.put("username", username);
+        scoreEntry.put("score", score);
+        scoreEntry.put("city", city);
+        scoreEntry.put("latitude", latitude);
+        scoreEntry.put("longitude", longitude);
 
-                Location location = locationResult.getLastLocation();
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-                String city = "Unknown";
-
-                Log.d(TAG, "Location received - Lat: " + latitude + ", Long: " + longitude);
-
-                Geocoder geocoder = new Geocoder(GameOverActivity.this, Locale.getDefault());
-                try {
-                    List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                    if (addresses != null && !addresses.isEmpty()) {
-                        Address address = addresses.get(0);
-                        city = address.getLocality();
-                        if (city == null) {
-                            city = address.getSubAdminArea();
-                        }
-                        if (city == null) {
-                            city = address.getAdminArea();
-                        }
-                        Log.d(TAG, "City obtained: " + city + ", Country: " + address.getCountryName());
-                    } else {
-                        Log.d(TAG, "Geocoder returned no address");
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Geocoder error", e);
-                }
-
-                DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
-                Map<String, Object> scoreEntry = new HashMap<>();
-                scoreEntry.put("username", username);
-                scoreEntry.put("score", score);
-                scoreEntry.put("city", city);
-                scoreEntry.put("latitude", latitude);
-                scoreEntry.put("longitude", longitude);
-
-                scoresRef.push().setValue(scoreEntry)
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score with location added successfully!"))
-                        .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save score", e));
-
-                fusedLocationClient.removeLocationUpdates(this);
-            }
-        };
-
-        try {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-        } catch (SecurityException e) {
-            Log.e(TAG, "Location permission error", e);
-            saveHighScoreWithoutLocation(score);
-        }
+        scoresRef.push().setValue(scoreEntry)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score with location added successfully!"))
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save score", e));
     }
 
     private void saveHighScoreWithoutLocation(int score) {
