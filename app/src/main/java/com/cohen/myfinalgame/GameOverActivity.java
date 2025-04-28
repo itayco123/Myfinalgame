@@ -35,11 +35,10 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 
-
-
 public class GameOverActivity extends Activity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final String TAG = "GameOverActivity";
 
     private TextView finalScoreText, highScoreText, coinsText;
     private Button playAgainButton, shopButton, backToMainButton;
@@ -110,7 +109,6 @@ public class GameOverActivity extends Activity {
         });
     }
 
-    // Handle permission result
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -126,7 +124,7 @@ public class GameOverActivity extends Activity {
     }
 
     private void saveHighScore(int score) {
-        Log.d("LeaderboardDebug", "🔥 saveHighScore() called with score: " + score);
+        Log.d(TAG, "🔥 saveHighScore() called with score: " + score);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String username = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "Guest";
 
@@ -134,14 +132,15 @@ public class GameOverActivity extends Activity {
 
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(1000); // Optional
-        locationRequest.setFastestInterval(500); // Optional
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(500);
+        locationRequest.setNumUpdates(1); // Only get one update
 
         LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null || locationResult.getLastLocation() == null) {
-                    Log.w("GeoDebug", "High accuracy location is null");
+                    Log.w(TAG, "High accuracy location is null");
                     saveHighScoreWithoutLocation(score);
                     fusedLocationClient.removeLocationUpdates(this);
                     return;
@@ -152,17 +151,26 @@ public class GameOverActivity extends Activity {
                 double longitude = location.getLongitude();
                 String city = "Unknown";
 
+                Log.d(TAG, "Location received - Lat: " + latitude + ", Long: " + longitude);
+
                 Geocoder geocoder = new Geocoder(GameOverActivity.this, Locale.getDefault());
                 try {
                     List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
                     if (addresses != null && !addresses.isEmpty()) {
-                        city = addresses.get(0).getLocality();
-                        Log.d("GeoDebug", "City obtained: " + city);
+                        Address address = addresses.get(0);
+                        city = address.getLocality();
+                        if (city == null) {
+                            city = address.getSubAdminArea();
+                        }
+                        if (city == null) {
+                            city = address.getAdminArea();
+                        }
+                        Log.d(TAG, "City obtained: " + city + ", Country: " + address.getCountryName());
                     } else {
-                        Log.d("GeoDebug", "Geocoder returned no address");
+                        Log.d(TAG, "Geocoder returned no address");
                     }
                 } catch (IOException e) {
-                    Log.e("GeoDebug", "Geocoder error", e);
+                    Log.e(TAG, "Geocoder error", e);
                 }
 
                 DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
@@ -174,17 +182,17 @@ public class GameOverActivity extends Activity {
                 scoreEntry.put("longitude", longitude);
 
                 scoresRef.push().setValue(scoreEntry)
-                        .addOnSuccessListener(aVoid -> Log.d("LeaderboardDebug", "✅ Score with location added successfully!"))
-                        .addOnFailureListener(e -> Log.e("LeaderboardDebug", "❌ Failed to save score", e));
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score with location added successfully!"))
+                        .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save score", e));
 
-                fusedLocationClient.removeLocationUpdates(this); // stop updates to save battery
+                fusedLocationClient.removeLocationUpdates(this);
             }
         };
 
         try {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         } catch (SecurityException e) {
-            Log.e("GeoDebug", "Location permission error", e);
+            Log.e(TAG, "Location permission error", e);
             saveHighScoreWithoutLocation(score);
         }
     }
@@ -199,7 +207,7 @@ public class GameOverActivity extends Activity {
         scoreEntry.put("score", score);
 
         scoresRef.push().setValue(scoreEntry)
-                .addOnSuccessListener(aVoid -> Log.d("LeaderboardDebug", "✅ Score saved without location"))
-                .addOnFailureListener(e -> Log.e("LeaderboardDebug", "❌ Failed to save score", e));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score saved without location"))
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save score", e));
     }
 }

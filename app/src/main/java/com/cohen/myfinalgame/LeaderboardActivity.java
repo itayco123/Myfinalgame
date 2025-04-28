@@ -60,10 +60,14 @@ public class LeaderboardActivity extends AppCompatActivity {
                             String username = data.child("username").getValue(String.class);
                             Long scoreLong = data.child("score").getValue(Long.class);
                             String city = data.child("city").getValue(String.class);
+                            Double latitude = data.child("latitude").getValue(Double.class);
+                            Double longitude = data.child("longitude").getValue(Double.class);
 
                             if (username != null && scoreLong != null) {
                                 int score = scoreLong.intValue();
-                                scoreList.add(new ScoreEntry(username, score, city != null ? city : "Unknown"));
+                                double lat = latitude != null ? latitude : 0.0;
+                                double lng = longitude != null ? longitude : 0.0;
+                                scoreList.add(new ScoreEntry(username, score, city != null ? city : "Unknown", lat, lng));
                             }
                         }
 

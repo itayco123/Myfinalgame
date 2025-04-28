@@ -1,5 +1,7 @@
 package com.cohen.myfinalgame;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,19 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
         holder.usernameText.setText(entry.username);
         holder.scoreText.setText(String.valueOf(entry.score));
         holder.cityText.setText(entry.city);
+
+        // Make city text clickable and open Google Maps
+        holder.cityText.setOnClickListener(v -> {
+            if (entry.latitude != 0 && entry.longitude != 0) {
+                String uri = String.format("geo:%f,%f?q=%f,%f(%s)",
+                        entry.latitude, entry.longitude,
+                        entry.latitude, entry.longitude,
+                        entry.city);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                intent.setPackage("com.google.android.apps.maps");
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
