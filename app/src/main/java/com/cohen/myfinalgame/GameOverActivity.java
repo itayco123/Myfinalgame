@@ -139,6 +139,7 @@ public class GameOverActivity extends Activity {
         locationRequest.setInterval(1000);
         locationRequest.setFastestInterval(500);
         locationRequest.setNumUpdates(1);
+        locationRequest.setMaxWaitTime(5000); // 5 seconds timeout
 
         // Check if location settings are enabled
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -161,28 +162,39 @@ public class GameOverActivity extends Activity {
                     Location location = locationResult.getLastLocation();
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
-                    String city = "Unknown";
+                    String city = "Unknown"; // Default to Unknown
 
                     Log.d(TAG, "Location received - Lat: " + latitude + ", Long: " + longitude);
 
-                    Geocoder geocoder = new Geocoder(GameOverActivity.this, Locale.getDefault());
-                    try {
-                        List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                        if (addresses != null && !addresses.isEmpty()) {
-                            Address address = addresses.get(0);
-                            city = address.getLocality();
-                            if (city == null) {
-                                city = address.getSubAdminArea();
+                    // Only try to get city if accuracy is good enough (less than 1000 meters)
+                    if (location.hasAccuracy() && location.getAccuracy() < 1000) {
+                        Geocoder geocoder = new Geocoder(GameOverActivity.this, Locale.getDefault());
+                        try {
+                            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                            if (addresses != null && !addresses.isEmpty()) {
+                                Address address = addresses.get(0);
+                                city = address.getLocality();
+                                if (city == null || city.isEmpty()) {
+                                    city = address.getSubAdminArea();
+                                }
+                                if (city == null || city.isEmpty()) {
+                                    city = address.getAdminArea();
+                                }
+                                if (city == null || city.isEmpty()) {
+                                    city = "Unknown";
+                                }
+                                Log.d(TAG, "City obtained: " + city + ", Country: " + address.getCountryName());
+                            } else {
+                                Log.d(TAG, "Geocoder returned no address");
+                                city = "Unknown";
                             }
-                            if (city == null) {
-                                city = address.getAdminArea();
-                            }
-                            Log.d(TAG, "City obtained: " + city + ", Country: " + address.getCountryName());
-                        } else {
-                            Log.d(TAG, "Geocoder returned no address");
+                        } catch (IOException e) {
+                            Log.e(TAG, "Geocoder error", e);
+                            city = "Unknown";
                         }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Geocoder error", e);
+                    } else {
+                        Log.w(TAG, "Location accuracy too low: " + location.getAccuracy() + " meters");
+                        city = "Unknown";
                     }
 
                     DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
@@ -192,6 +204,7 @@ public class GameOverActivity extends Activity {
                     scoreEntry.put("city", city);
                     scoreEntry.put("latitude", latitude);
                     scoreEntry.put("longitude", longitude);
+                    scoreEntry.put("accuracy", location.hasAccuracy() ? location.getAccuracy() : -1);
 
                     scoresRef.push().setValue(scoreEntry)
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score with location added successfully!"))

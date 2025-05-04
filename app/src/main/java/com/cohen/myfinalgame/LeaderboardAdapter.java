@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +17,7 @@ import java.util.List;
 public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.ViewHolder> {
 
     private final List<ScoreEntry> scoreList;
+    private int lastPosition = -1;
 
     public LeaderboardAdapter(List<ScoreEntry> scoreList) {
         this.scoreList = scoreList;
@@ -31,7 +34,24 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ScoreEntry entry = scoreList.get(position);
-        holder.rankText.setText(String.valueOf(position + 1));
+        
+        // Set rank with medal emoji for top 3
+        String rankText;
+        switch (position) {
+            case 0:
+                rankText = "🥇";
+                break;
+            case 1:
+                rankText = "🥈";
+                break;
+            case 2:
+                rankText = "🥉";
+                break;
+            default:
+                rankText = String.valueOf(position + 1);
+        }
+        holder.rankText.setText(rankText);
+        
         holder.usernameText.setText(entry.username);
         holder.scoreText.setText(String.valueOf(entry.score));
         holder.cityText.setText(entry.city);
@@ -48,6 +68,18 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
                 v.getContext().startActivity(intent);
             }
         });
+
+        // Set animation
+        setAnimation(holder.itemView, position);
+    }
+
+    private void setAnimation(View viewToAnimate, int position) {
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), 
+                    android.R.anim.slide_in_left);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
     @Override

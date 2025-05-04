@@ -32,9 +32,9 @@ public class ShopActivity extends AppCompatActivity {
         coins = prefs.getInt("coins", 0);
         updateCoinsText();
 
-        // Back to Game button
+        // Home button
         backToGameButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ShopActivity.this, GameActivity.class);
+            Intent intent = new Intent(ShopActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         });

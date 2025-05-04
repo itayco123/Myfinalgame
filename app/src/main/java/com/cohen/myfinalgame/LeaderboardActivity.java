@@ -26,7 +26,9 @@ public class LeaderboardActivity extends AppCompatActivity {
     private RecyclerView leaderboardRecyclerView;
     private LeaderboardAdapter leaderboardAdapter;
     private List<ScoreEntry> scoreList = new ArrayList<>();
-    private Button backButton;
+    private Button backButton, refreshButton;
+    private DatabaseReference scoresRef;
+    private ValueEventListener valueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,48 +41,69 @@ public class LeaderboardActivity extends AppCompatActivity {
         leaderboardRecyclerView.setAdapter(leaderboardAdapter);
 
         backButton = findViewById(R.id.backButton);
+        refreshButton = findViewById(R.id.refreshButton);
+
         backButton.setOnClickListener(v -> {
             startActivity(new Intent(this, MainActivity.class));
             finish();
         });
 
+        refreshButton.setOnClickListener(v -> loadLeaderboardData());
+
+        scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
         loadLeaderboardData();
     }
 
     private void loadLeaderboardData() {
-        DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
+        // Remove previous listener if exists
+        if (valueEventListener != null) {
+            scoresRef.removeEventListener(valueEventListener);
+        }
 
-        scoresRef.orderByChild("score").limitToLast(50)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        scoreList.clear();
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                scoreList.clear();
+                Log.d("Leaderboard", "Data changed, updating leaderboard");
 
-                        for (DataSnapshot data : snapshot.getChildren()) {
-                            String username = data.child("username").getValue(String.class);
-                            Long scoreLong = data.child("score").getValue(Long.class);
-                            String city = data.child("city").getValue(String.class);
-                            Double latitude = data.child("latitude").getValue(Double.class);
-                            Double longitude = data.child("longitude").getValue(Double.class);
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    String username = data.child("username").getValue(String.class);
+                    Long scoreLong = data.child("score").getValue(Long.class);
+                    String city = data.child("city").getValue(String.class);
+                    Double latitude = data.child("latitude").getValue(Double.class);
+                    Double longitude = data.child("longitude").getValue(Double.class);
 
-                            if (username != null && scoreLong != null) {
-                                int score = scoreLong.intValue();
-                                double lat = latitude != null ? latitude : 0.0;
-                                double lng = longitude != null ? longitude : 0.0;
-                                scoreList.add(new ScoreEntry(username, score, city != null ? city : "Unknown", lat, lng));
-                            }
-                        }
-
-                        // Sort from highest to lowest
-                        Collections.sort(scoreList, (a, b) -> Integer.compare(b.score, a.score));
-                        leaderboardAdapter.notifyDataSetChanged();
+                    if (username != null && scoreLong != null) {
+                        int score = scoreLong.intValue();
+                        double lat = latitude != null ? latitude : 0.0;
+                        double lng = longitude != null ? longitude : 0.0;
+                        String cityName = city != null ? city : "Unknown";
+                        scoreList.add(new ScoreEntry(username, score, cityName, lat, lng));
+                        Log.d("Leaderboard", "Added score: " + username + " - " + score);
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("Leaderboard", "Failed to load scores", error.toException());
-                        Toast.makeText(LeaderboardActivity.this, "Error loading leaderboard", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                // Sort from highest to lowest
+                Collections.sort(scoreList, (a, b) -> Integer.compare(b.score, a.score));
+                leaderboardAdapter.notifyDataSetChanged();
+                Log.d("Leaderboard", "Leaderboard updated with " + scoreList.size() + " entries");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Leaderboard", "Failed to load scores", error.toException());
+                Toast.makeText(LeaderboardActivity.this, "Error loading leaderboard", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        scoresRef.orderByChild("score").limitToLast(50).addValueEventListener(valueEventListener);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (valueEventListener != null) {
+            scoresRef.removeEventListener(valueEventListener);
+        }
     }
 }
