@@ -1,70 +1,154 @@
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@drawable/shop_background"
     tools:context=".ShopActivity">
 
-    <!-- Coins Display -->
+    <TextView
+        android:id="@+id/shopTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shop"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <TextView
         android:id="@+id/coinsText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Coins: 0"
         android:textSize="24sp"
-        android:textColor="@color/primaryTextColor"
-        android:fontFamily="sans-serif-bold"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/shopTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Power-Up Buttons -->
-    <Button
-        android:id="@+id/buyDoublePointsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Double Points (150 Coins)"
-        android:layout_marginTop="10dp"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
         app:layout_constraintTop_toBottomOf="@id/coinsText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintBottom_toTopOf="@id/backToGameButton">
 
-    <Button
-        android:id="@+id/buyExtraTimeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Extra Time (100 Coins)"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/buyDoublePointsButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
 
+            <!-- Extra Time Power-up -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/power_up_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Extra Time\n+5 seconds"
+                    android:textSize="12sp"
+                    android:textColor="#000000" />
 
-    <Button
-        android:id="@+id/buyExtraLifeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Extra Life (120 Coins)"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/buyExtraTimeButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                <Button
+                    android:id="@+id/buyExtraTimeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buy (100 coins)"
+                    android:background="@drawable/button_background" />
+            </LinearLayout>
 
-    <Button
-        android:id="@+id/buyTriplePointsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Triple Points (200 Coins)"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/buyExtraLifeButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <!-- Double Points Power-up -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/power_up_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
 
-    <!-- Home Button -->
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Double Points\n2x score multiplier"
+                    android:textSize="12sp"
+                    android:textColor="#000000" />
+
+                <Button
+                    android:id="@+id/buyDoublePointsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buy (200 coins)"
+                    android:background="@drawable/button_background" />
+            </LinearLayout>
+
+            <!-- Triple Points Power-up -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/power_up_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Triple Points\nfor 5 seconds"
+                    android:textSize="12sp"
+                    android:textColor="#000000" />
+
+                <Button
+                    android:id="@+id/buyTriplePointsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buy (300 coins)"
+                    android:background="@drawable/button_background" />
+            </LinearLayout>
+
+            <!-- Extra Life Power-up -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/power_up_background"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Extra Life\nOne mistake allowed"
+                    android:textSize="12sp"
+                    android:textColor="#000000" />
+
+                <Button
+                    android:id="@+id/buyExtraLifeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buy (500 coins)"
+                    android:background="@drawable/button_background" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
     <Button
         android:id="@+id/backToGameButton"
         android:layout_width="wrap_content"
@@ -73,9 +157,9 @@
         android:textSize="24sp"
         android:padding="16dp"
         android:background="@drawable/button_background"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/buyTriplePointsButton"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

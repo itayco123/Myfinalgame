@@ -79,7 +79,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                         double lng = longitude != null ? longitude : 0.0;
                         String cityName = city != null ? city : "Unknown";
                         scoreList.add(new ScoreEntry(username, score, cityName, lat, lng));
-                        Log.d("Leaderboard", "Added score: " + username + " - " + score);
+                        Log.d("Leaderboard", "Added score: " + username + " - " + score + " from " + cityName);
                     }
                 }
 
@@ -87,16 +87,24 @@ public class LeaderboardActivity extends AppCompatActivity {
                 Collections.sort(scoreList, (a, b) -> Integer.compare(b.score, a.score));
                 leaderboardAdapter.notifyDataSetChanged();
                 Log.d("Leaderboard", "Leaderboard updated with " + scoreList.size() + " entries");
+                
+                // Show a toast with the number of entries
+                Toast.makeText(LeaderboardActivity.this, 
+                    "Loaded " + scoreList.size() + " scores", 
+                    Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("Leaderboard", "Failed to load scores", error.toException());
-                Toast.makeText(LeaderboardActivity.this, "Error loading leaderboard", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LeaderboardActivity.this, 
+                    "Error loading leaderboard: " + error.getMessage(), 
+                    Toast.LENGTH_SHORT).show();
             }
         };
 
-        scoresRef.orderByChild("score").limitToLast(50).addValueEventListener(valueEventListener);
+        // Remove the limit and order to get all scores
+        scoresRef.addValueEventListener(valueEventListener);
     }
 
     @Override

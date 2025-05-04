@@ -62,6 +62,7 @@ public class GameOverActivity extends Activity {
         backToMainButton = findViewById(R.id.backToMainButton);
 
         int score = getIntent().getIntExtra("score", 0);
+        Log.d(TAG, "🔥 Game Over - Score received: " + score);
         finalScoreText.setText("Final Score: " + score);
         pendingScore = score;
 
@@ -72,10 +73,12 @@ public class GameOverActivity extends Activity {
         // Request location permissions first
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Location permission not granted, requesting...");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
+            Log.d(TAG, "Location permission already granted, saving score...");
             saveHighScore(score);
         }
 
@@ -131,6 +134,7 @@ public class GameOverActivity extends Activity {
         Log.d(TAG, "🔥 saveHighScore() called with score: " + score);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String username = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "Guest";
+        Log.d(TAG, "Current user: " + (user != null ? user.getUid() : "null") + ", username: " + username);
 
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -230,16 +234,25 @@ public class GameOverActivity extends Activity {
     }
 
     private void saveHighScoreWithoutLocation(int score) {
+        Log.d(TAG, "🔥 saveHighScoreWithoutLocation() called with score: " + score);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String username = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "Guest";
+        Log.d(TAG, "Current user (no location): " + (user != null ? user.getUid() : "null") + ", username: " + username);
 
         DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference("leaderboard");
         Map<String, Object> scoreEntry = new HashMap<>();
         scoreEntry.put("username", username);
         scoreEntry.put("score", score);
 
+        Log.d(TAG, "Attempting to save score to Firebase: " + scoreEntry);
         scoresRef.push().setValue(scoreEntry)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Score saved without location"))
-                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save score", e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Score saved successfully without location");
+                    Toast.makeText(this, "Score saved!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ Failed to save score", e);
+                    Toast.makeText(this, "Failed to save score: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }
