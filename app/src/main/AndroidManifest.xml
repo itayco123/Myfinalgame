@@ -2,11 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Add required permissions -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 
     <application
         android:allowBackup="true"
@@ -20,7 +22,6 @@
         tools:targetApi="31">
 
         <!-- Google Maps API Key; replace with your actual key -->
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_API_KEY_HERE" />
@@ -29,27 +30,32 @@
             android:name="com.google.android.actions"
             android:resource="@drawable/rounded_input" />
 
-        <activity
-            android:name=".ShopActivity"
-            android:exported="false" />
+        <!-- Activities -->
+        <activity android:name=".ShopActivity" android:exported="false" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LeaderboardActivity" />
-        <activity
-            android:name=".GameOverActivity"
-            android:exported="false" />
-        <activity
-            android:name=".GameActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        <activity android:name=".GameOverActivity" android:exported="false" />
+        <activity android:name=".GameActivity" android:exported="false" />
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Receivers -->
         <receiver android:name=".NotificationReceiver" />
+
+        <!-- Optional: Only needed for Android < 7.0 -->
+        <receiver
+            android:name=".NetworkChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
 
     </application>
 </manifest>
